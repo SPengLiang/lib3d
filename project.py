@@ -12,41 +12,6 @@ def roty(t):
                      [0, 1, 0],
                      [-s, 0, c]])
 
-def compute_box_3d(xyz, hwl, ry):
-    ''' Takes an object and a projection matrix (P) and projects the 3d
-        bounding box into the image plane.
-        Returns:
-            corners_2d: (8,2) array in left image coord.
-            corners_3d: (8,3) array in in rect camera coord.
-    '''
-    # compute rotational matrix around yaw axis
-
-    R = roty(ry)
-
-    # 3d bounding box dimensions
-    l = hwl[2]
-    w = hwl[1]
-    h = hwl[0]
-
-    # 3d bounding box corners
-    x_corners = [l / 2, l / 2, -l / 2, -l / 2, l / 2, l / 2, -l / 2, -l / 2]
-    y_corners = [0, 0, 0, 0, -h, -h, -h, -h]
-    z_corners = [w / 2, -w / 2, -w / 2, w / 2, w / 2, -w / 2, -w / 2, w / 2]
-
-    # rotate and translate 3d bounding box
-    corners_3d = np.dot(R, np.vstack([x_corners, y_corners, z_corners]))
-    # print corners_3d.shape
-    corners_3d[0, :] = corners_3d[0, :] + xyz[0]
-    corners_3d[1, :] = corners_3d[1, :] + xyz[1]
-    corners_3d[2, :] = corners_3d[2, :] + xyz[2]
-    # print 'cornsers_3d: ', corners_3d
-    # only draw 3d bounding box for objs in front of the camera
-    if np.any(corners_3d[2, :] < 0.1):
-        corners_2d = None
-        return corners_2d, np.transpose(corners_3d)
-
-    return np.transpose(corners_3d)
-
 
 def corner_3d(bbox3d_input):
     '''
